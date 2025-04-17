@@ -213,7 +213,18 @@ done
 
 CMD="kubectl $CMD"
 CMD=$(echo "$CMD" | sed 's/  */ /g')  # clean multiple spaces
->&2 echo -e "\033[1m$CMD\033[0m"
+
+if [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]]; then
+  echo "${CMD}"
+else
+  >&2 echo -e "\033[1m${CMD}\033[0m"
+fi
+
+# Dry-run mode: if K_DRYRUN is set (non-zero), skip execution
+# This is used for automated code tests
+if [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]]; then
+    exit 0
+fi
 
 # Execute
 if [[ "$1" == "w" ]]; then
