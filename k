@@ -4,38 +4,48 @@
 # Original: https://gitlab.com/gnufred/k
 # License: The Unlicense <https://unlicense.org>
 
-# Require Bash 4+
-if ((BASH_VERSINFO[0] < 4)); then
+# -----------------------------------------------------------------------------
+# Ensure Bash 4+ features (associative arrays)
+# -----------------------------------------------------------------------------
+require_bash() {
+  if (( BASH_VERSINFO[0] < 4 )); then
     echo "This script requires Bash 4 or higher." >&2
     exit 1
-fi
+  fi
+}
+require_bash
 
+# -----------------------------------------------------------------------------
+# Default alias mappings (global)
+# -----------------------------------------------------------------------------
 ALL="ingressclass,ing,all,sc,pv,pvc,cm,secret"
 
-# Define alias map
 declare -A KMAP=(
-  # Special
-  ["w"]=""
+  # special
   ["-Z"]=""
+  ["w"]=""
 
-  # Custom shortcuts
+  # custom shortcuts
   ["#all"]="get node,ns,$ALL -o wide --all-namespaces"
   ["#def"]="get $ALL -o wide --namespace default"
   ["#ks"]="get $ALL -o wide --namespace kube-system"
   ["#n"]="get $ALL -o wide --namespace"
 
-  # Troubleshooting containers
+  # troubleshooting containers
   ["@alpine"]="run -it --rm alpine --image=alpine --restart=Never -- /bin/sh"
   ["@busybox"]="run -it --rm busybox --image=busybox --restart=Never -- /bin/sh"
   ["@netshoot"]="run -it --rm netshoot --image=nicolaka/netshoot --restart=Never -- /bin/bash"
   ["@ubuntu"]="run -it --rm ubuntu --image=ubuntu --restart=Never -- /bin/bash"
 
-  # Short options
+  # short options
   ["-n"]="--namespace"
-  ["-v"]="--v"
   ["-s"]="--server"
+  ["-v"]="--v"
 
   # kubectl options
+  ["-c"]="--cluster"
+  ["-p"]="--profile"
+  ["-x"]="--context"
   ["--ag"]="--as-group"
   ["--au"]="--as-uid"
   ["--ca"]="--certificate-authority"
@@ -44,10 +54,10 @@ declare -A KMAP=(
   ["--ck"]="--client-key"
   ["--cl"]="--cluster"
   ["--co"]="--context"
-  ["-x"]="--context"
   ["--dc"]="--disable-compression"
   ["--drc"]="--dry-run=client"
   ["--drs"]="--dry-run=server"
+  ["--ei"]="--external-ip"
   ["--istv"]="--insecure-skip-tls-verify"
   ["--kc"]="--kubeconfig"
   ["--lff"]="--log-flush-frequency"
@@ -55,49 +65,47 @@ declare -A KMAP=(
   ["--pa"]="--password"
   ["--po"]="--profile-output"
   ["--rt"]="--request-timeout"
+  ["--sl"]="--show-labels"
   ["--tk"]="--token"
   ["--tsn"]="--tls-server-name"
   ["--un"]="--username"
   ["--us"]="--user"
   ["--vm"]="--vmodule"
   ["--wae"]="--warnings-as-errors"
-  ["-c"]="--cluster"
-  ["-p"]="--profile"
 
-  # Subcommand options
+  # subcommand options
   ["--ei"]="--external-ip"
   ["--sl"]="--show-labels"
 
-  # Output formats
-  ["-Y"]="-o yaml"
+  # output formats
   ["-J"]="-o json"
-  ["-W"]="-o wide"
   ["-N"]="-o name"
   ["-S"]="--selector"
+  ["-W"]="-o wide"
+  ["-Y"]="-o yaml"
 
-  # Namespaces
+  # namespaces
   ["-A"]="--all-namespaces"
   ["ks"]="kube-system"
 
-  # Commands
+  # commands
+  ["a"]="apply"
   ["a-r"]="api-resources"
   ["a-v"]="api-versions"
   ["ann"]="annotate"
-  ["a"]="apply"
   ["app"]="apply"
   ["asc"]="autoscale"
   ["att"]="attach"
   ["aut"]="auth"
-  ["sca"]="autoscale"
   ["c-i"]="cluster-info"
   ["cer"]="certificate"
   ["com"]="completion"
   ["con"]="config"
   ["cor"]="cordon"
   ["cre"]="create"
+  ["d"]="describe"
   ["deb"]="debug"
   ["del"]="delete"
-  ["d"]="describe"
   ["des"]="describe"
   ["dif"]="diff"
   ["dra"]="drain"
@@ -119,9 +127,9 @@ declare -A KMAP=(
   ["plu"]="plugin"
   ["pro"]="proxy"
   ["r"]="run"
-  ["run"]="run"
   ["rep"]="replace"
   ["rol"]="rollout"
+  ["sca"]="autoscale"
   ["set"]="set"
   ["tai"]="taint"
   ["t"]="top"
@@ -133,17 +141,17 @@ declare -A KMAP=(
   ["xpl"]="explain"
   ["xpo"]="expose"
 
-  # Resources
+  # resources
   ["ap"]="apiservices.apiregistration.k8s.io"
   ["cc"]="csistoragecapacities.storage.k8s.io"
   ["cd"]="csidrivers.storage.k8s.io"
-  ["crb"]="clusterrolebindings.rbac.authorization.k8s.io"
   ["ce"]="certificatesigningrequests.certificates.k8s.io"
   ["cj"]="cronjobs.batch"
   ["cm"]="configmaps"
   ["cn"]="csinodes.storage.k8s.io"
   ["cor"]="controllerrevisions.apps"
   ["cr"]="clusterroles.rbac.authorization.k8s.io"
+  ["crb"]="clusterrolebindings.rbac.authorization.k8s.io"
   ["crd"]="customresourcedefinitions.apiextensions.k8s.io"
   ["cs"]="componentstatuses"
   ["de"]="deployment"
@@ -162,9 +170,9 @@ declare -A KMAP=(
   ["na"]="namespaces"
   ["no"]="nodes"
   ["np"]="networkpolicies.networking.k8s.io"
-  ["pvc"]="persistentvolumeclaims"
   ["pc"]="priorityclasses.scheduling.k8s.io"
   ["pd"]="poddisruptionbudgets.policy"
+  ["pvc"]="persistentvolumeclaims"
   ["pl"]="prioritylevelconfigurations.flowcontrol.apiserver.k8s.io"
   ["po"]="pods"
   ["pt"]="podtemplates"
@@ -182,45 +190,83 @@ declare -A KMAP=(
   ["va"]="volumeattachments.storage.k8s.io"
   ["vh"]="validatingwebhookconfigurations.admissionregistration.k8s.io"
 
-  # Container shell helpers
-  ["shell"]="-it -- /bin/sh"
+  # container shell helpers
   ["bash"]="-it -- /bin/bash"
+  ["shell"]="-it -- /bin/sh"
 )
 
-# Load external aliases into KMAP
+# -----------------------------------------------------------------------------
+# Functions for expansion and execution
+# -----------------------------------------------------------------------------
+
+# Load user-defined aliases from external file into KMAP
 load_custom_kmap() {
   local config_file="$HOME/.kmap.custom"
   [[ -f "$config_file" ]] || return
 
   while IFS='=' read -r key val; do
-    # skip comments and blank lines
     [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
     KMAP["$key"]="$val"
   done < "$config_file"
 }
+load_custom_kmap
 
-load_custom_kmap  # load $HOME/.kmap.custom
-
-expand() {
-  local val="${KMAP[$1]}"
-  [[ -n "$val" ]] && echo "$val" || echo "$1"
+# Expand a single argument using KMAP, fallback to original
+expand_arg() {
+  local key="$1"
+  local val="${KMAP[$key]}"
+  [[ -n "$val" ]] && echo "$val" || echo "$key"
 }
 
-CMD=""
-for A in "$@"; do
-  CMD+="$(expand "$A") "
-done
+# Build the kubectl command string from all arguments
+build_command() {
+  CMD=""
+  for arg in "$@"; do
+    CMD+="$(expand_arg "$arg") "
+  done
+  CMD="kubectl ${CMD//  / }"
+}
 
-CMD="kubectl $CMD"
-CMD=$(echo "$CMD" | sed 's/  */ /g')  # clean multiple spaces
->&2 echo -e "\033[1m$CMD\033[0m"
+# Print the final command in bold to stderr
+print_command() {
+  >&2 echo -e "\033[1m${CMD}\033[0m"
+}
 
-# Execute
-if [[ "$1" == "w" ]]; then
-  watch -n1 "$CMD"
-elif [[ "${@: -1}" == "-Z" ]]; then
-  eval "$CMD" | yq eval 'del(.metadata.creationTimestamp, .metadata.resourceVersion, .metadata.uid, .metadata.selfLink, .status)'
-else
-  eval "$CMD"
-fi
+# Execute the command when 'w' is first argument
+execute_watch() {
+  watch -n1 "${CMD}"
+}
+
+# Execute the command with cleaned YAML output
+execute_clean() {
+  eval "${CMD}" | yq eval 'del(.metadata.creationTimestamp, .metadata.resourceVersion, .metadata.uid, .metadata.selfLink, .status)'
+}
+
+# Default execution of the command
+execute_default() {
+  eval "${CMD}" 
+}
+
+# Dispatch execution based on flags
+execute_command() {
+  if [[ "$1" == "w" ]]; then
+    execute_watch
+  elif [[ "${@: -1}" == "-Z" ]]; then
+    execute_clean
+  else
+    execute_default
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Main script invocation
+# -----------------------------------------------------------------------------
+
+main() {
+  build_command "$@"
+  print_command
+  execute_command "$@"
+}
+
+main "$@"
 
