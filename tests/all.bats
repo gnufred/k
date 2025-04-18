@@ -2,6 +2,7 @@
 
 setup() {
   export K_DRYRUN=1
+  export HOME="/tmp"
 }
 
 # -------------------------------------------------------------------
@@ -52,4 +53,18 @@ assert_expansion() {
 @test "logs/exec expansions" {
   assert_expansion "l po"          "logs pods"
   assert_expansion "x po"          "exec pods"
+}
+
+@test "custom‑alias loading from HOME/.kmap.custom" {
+  # Create a .kmap.custom in our fake HOME
+  cat > "$HOME/.kmap.custom" <<EOF
+foo=custom.resource.io
+bar=barz.io/v1
+EOF
+
+  # Now test that 'foo' expands to the mapped value
+  assert_expansion "get foo"  "get custom.resource.io"
+  assert_expansion "g bar"    "get barz.io/v1"
+
+  rm "$HOME/.kmap.custom"
 }
