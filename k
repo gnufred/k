@@ -229,7 +229,11 @@ build_command() {
 
 # Print the final command in bold to stderr
 print_command() {
-  >&2 echo -e "\033[1m${CMD}\033[0m"
+  if [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]]; then
+    echo "${CMD}"
+  else
+    >&2 echo -e "\033[1m${CMD}\033[0m"
+  fi
 }
 
 # Execute the command when 'w' is first argument
@@ -249,6 +253,8 @@ execute_default() {
 
 # Dispatch execution based on flags
 execute_command() {
+  [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]] && exit 0
+
   if [[ "$1" == "w" ]]; then
     execute_watch
   elif [[ "${@: -1}" == "-Z" ]]; then
