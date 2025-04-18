@@ -1,0 +1,19 @@
+name: test-prs
+on: [pull_request]
+jobs:
+  test:
+    name: Run Bats Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Bats‑Core
+        uses: mig4/setup-bats@v1
+        with:
+          bats-version: 1.11.1
+
+      - name: Run all tests
+        run: bats -r tests
+
