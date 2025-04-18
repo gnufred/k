@@ -95,7 +95,7 @@ You can modify the file at any time to add or change aliases. It's your own `kub
 
 ## 🙌 Contribute
 
-Fork it. Copy it. Bash it. Rewrite it in Go if you want.
+Fork it. Copy it. Bash it. Rewrite it in Rust if you want.
 
 If your customizations might be useful to others, feel free to [open an issue](https://github.com/gnufred/k/issues) or submit a [pull request](https://github.com/gnufred/k/pulls).
 
