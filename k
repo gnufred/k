@@ -4,9 +4,9 @@
 # Original: https://gitlab.com/gnufred/k
 # License: The Unlicense <https://unlicense.org>
 
-# -----------------------------------------------------------------------------
-# Ensure Bash 4+ features (associative arrays)
-# -----------------------------------------------------------------------------
+################
+# Requirements #
+################
 require_bash() {
   if (( BASH_VERSINFO[0] < 4 )); then
     echo "This script requires Bash 4 or higher." >&2
@@ -15,9 +15,9 @@ require_bash() {
 }
 require_bash
 
-# -----------------------------------------------------------------------------
-# Default alias mappings (global)
-# -----------------------------------------------------------------------------
+###########
+# Aliases #
+###########
 ALL="ingressclass,ing,all,sc,pv,pvc,cm,secret"
 
 declare -A KMAP=(
@@ -194,9 +194,9 @@ declare -A KMAP=(
   ["shell"]="-it -- /bin/sh"
 )
 
-# -----------------------------------------------------------------------------
-# Functions for expansion and execution
-# -----------------------------------------------------------------------------
+###############
+# Custom Kmap #
+###############
 
 # Load user-defined aliases from external file into KMAP
 load_custom_kmap() {
@@ -209,6 +209,10 @@ load_custom_kmap() {
   done < "$config_file"
 }
 load_custom_kmap
+
+###########
+# Command #
+###########
 
 # Expand a single argument using KMAP, fallback to original
 expand_arg() {
@@ -235,6 +239,10 @@ print_command() {
   fi
 }
 
+########
+# Exec #
+########
+
 # Execute the command when 'w' is first argument
 execute_watch() {
   watch -n1 "${CMD}"
@@ -256,12 +264,20 @@ execute_command() {
   fi
 }
 
-# -----------------------------------------------------------------------------
-# Main script invocation
-# -----------------------------------------------------------------------------
+##########
+# Mutate #
+##########
+mutate_command () {
+  printf ''
+}
+
+########
+# Main #
+########
 
 main() {
   build_command "$@"
+  mutate_command
   print_command
   execute_command "$@"
 }
