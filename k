@@ -4,9 +4,9 @@
 # Original: https://gitlab.com/gnufred/k
 # License: The Unlicense <https://unlicense.org>
 
-# -----------------------------------------------------------------------------
-# Ensure Bash 4+ features (associative arrays)
-# -----------------------------------------------------------------------------
+################
+# Requirements #
+################
 require_bash() {
   if (( BASH_VERSINFO[0] < 4 )); then
     echo "This script requires Bash 4 or higher." >&2
@@ -15,9 +15,9 @@ require_bash() {
 }
 require_bash
 
-# -----------------------------------------------------------------------------
-# Default alias mappings (global)
-# -----------------------------------------------------------------------------
+###########
+# Aliases #
+###########
 ALL="ingressclass,ing,all,sc,pv,pvc,cm,secret"
 
 declare -A KMAP=(
@@ -194,9 +194,9 @@ declare -A KMAP=(
   ["shell"]="-it -- /bin/sh"
 )
 
-# -----------------------------------------------------------------------------
-# Functions for expansion and execution
-# -----------------------------------------------------------------------------
+###############
+# Custom Kmap #
+###############
 
 # Load user-defined aliases from external file into KMAP
 load_custom_kmap() {
@@ -210,6 +210,10 @@ load_custom_kmap() {
 }
 load_custom_kmap
 
+###########
+# Command #
+###########
+
 # Expand a single argument using KMAP, fallback to original
 expand_arg() {
   local key="$1"
@@ -219,52 +223,94 @@ expand_arg() {
 
 # Build the kubectl command string from all arguments
 build_command() {
-  CMD=""
-  for arg in "$@"; do
-    CMD+="$(expand_arg "$arg") "
+  local args=( "$@" ) cmd=""
+  for a in "${args[@]}"; do
+    cmd+="$(expand_arg "$a") "
   done
-  CMD="kubectl ${CMD//  / }"
+
+  # remove the trailing space
+  cmd=${cmd% }
+  # collapse any double‑spaces
+  cmd=${cmd//  / }
+  # prepend kubectl
+  echo "kubectl $cmd"
 }
 
 # Print the final command in bold to stderr
 print_command() {
+  local cmd="$1"
   if [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]]; then
-    echo "${CMD}"
+    echo "$cmd"
   else
-    >&2 echo -e "\033[1m${CMD}\033[0m"
+    >&2 echo -e "\033[1m${cmd}\033[0m"
   fi
 }
 
+########
+# Exec #
+########
+
 # Execute the command when 'w' is first argument
 execute_watch() {
-  watch -n1 "${CMD}"
+  watch -n1 "${cmd}"
 }
 
 # Default execution of the command
 execute_default() {
-  eval "${CMD}" 
+  eval "${cmd}" 
 }
 
 # Dispatch execution based on flags
 execute_command() {
-  [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]] && exit 0
+  local cmd="$1"; shift
+  local args=( "$@" )
 
-  if [[ "$1" == "w" ]]; then
-    execute_watch
+  # short‑circuit dry‑run
+  [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]] && return
+
+  if [[ "${args[0]}" == "w" ]]; then
+    watch -n1 "$cmd"
   else
-    execute_default
+    eval "$cmd"
   fi
 }
 
-# -----------------------------------------------------------------------------
-# Main script invocation
-# -----------------------------------------------------------------------------
+##########
+# Mutate #
+##########
+mutate_command() {
+  local cmd="$1"
+  
+  if [[ "$cmd" == kubectl\ get\ events* ]]; then
+    cmd="$(mutate_sorted_events "$cmd")"
+  fi
+  
+  echo "$cmd"
+}
+
+mutate_sorted_events() {
+  local cmd="$1"
+  
+  if [[ "$cmd" != *"--sort-by"* ]]; then
+    cmd+=" --sort-by='.lastTimestamp'"
+  fi
+  
+  echo "$cmd"
+}
+
+########
+# Main #
+########
 
 main() {
-  build_command "$@"
-  print_command
-  execute_command "$@"
+  local cmd
+
+  cmd="$(build_command "$@")"
+  cmd="$(mutate_command "$cmd")"
+  print_command "$cmd"
+  execute_command "$cmd" "$@"
 }
+
 
 main "$@"
 
