@@ -223,19 +223,21 @@ expand_arg() {
 
 # Build the kubectl command string from all arguments
 build_command() {
-  CMD=""
-  for arg in "$@"; do
-    CMD+="$(expand_arg "$arg") "
+  local args=( "$@" ) cmd=""
+  for a in "${args[@]}"; do
+    cmd+="$(expand_arg "$a") "
   done
-  CMD="kubectl ${CMD//  / }"
+  # collapse spaces and prepend kubectl
+  echo "kubectl ${cmd//  / }"
 }
 
 # Print the final command in bold to stderr
 print_command() {
+  local cmd="$1"
   if [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]]; then
-    echo "${CMD}"
+    echo "$cmd"
   else
-    >&2 echo -e "\033[1m${CMD}\033[0m"
+    >&2 echo -e "\033[1m${cmd}\033[0m"
   fi
 }
 
@@ -245,30 +247,42 @@ print_command() {
 
 # Execute the command when 'w' is first argument
 execute_watch() {
-  watch -n1 "${CMD}"
+  watch -n1 "${cmd}"
 }
 
 # Default execution of the command
 execute_default() {
-  eval "${CMD}" 
+  eval "${cmd}" 
 }
 
 # Dispatch execution based on flags
 execute_command() {
-  [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]] && exit 0
+  local cmd="$1"; shift
+  local args=( "$@" )
 
-  if [[ "$1" == "w" ]]; then
-    execute_watch
+  # short‑circuit dry‑run
+  [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]] && return
+
+  if [[ "${args[0]}" == "w" ]]; then
+    watch -n1 "$cmd"
   else
-    execute_default
+    eval "$cmd"
   fi
 }
 
 ##########
 # Mutate #
 ##########
-mutate_command () {
-  printf ''
+mutate_command() {
+  local cmd="$1"; shift
+  local args=( "$@" )
+
+  # Example hook for sorted events:
+  if [[ "${args[0]}" == "g" && "${args[1]}" == "ev" ]] && [[ "$cmd" != *"--sort-by='.lastTimestamp'"* ]]; then
+    cmd+=" --sort-by='.lastTimestamp'"
+  fi
+
+  echo "$cmd"
 }
 
 ########
@@ -276,11 +290,14 @@ mutate_command () {
 ########
 
 main() {
-  build_command "$@"
-  mutate_command
-  print_command
-  execute_command "$@"
+  local cmd
+
+  cmd="$(build_command "$@")"
+  cmd="$(mutate_command "$cmd" "$@")"
+  print_command "$cmd"
+  execute_command "$cmd" "$@"
 }
+
 
 main "$@"
 
