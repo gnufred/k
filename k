@@ -22,7 +22,6 @@ ALL="ingressclass,ing,all,sc,pv,pvc,cm,secret"
 
 declare -A KMAP=(
   # special
-  ["-Z"]=""
   ["w"]=""
 
   # custom shortcuts
@@ -241,11 +240,6 @@ execute_watch() {
   watch -n1 "${CMD}"
 }
 
-# Execute the command with cleaned YAML output
-execute_clean() {
-  eval "${CMD}" | yq eval 'del(.metadata.creationTimestamp, .metadata.resourceVersion, .metadata.uid, .metadata.selfLink, .status)'
-}
-
 # Default execution of the command
 execute_default() {
   eval "${CMD}" 
@@ -257,8 +251,6 @@ execute_command() {
 
   if [[ "$1" == "w" ]]; then
     execute_watch
-  elif [[ "${@: -1}" == "-Z" ]]; then
-    execute_clean
   else
     execute_default
   fi
