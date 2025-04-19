@@ -274,14 +274,22 @@ execute_command() {
 # Mutate #
 ##########
 mutate_command() {
-  local cmd="$1"; shift
-  local args=( "$@" )
+  local cmd="$1"
+  
+  if [[ "$cmd" == kubectl\ get\ events* ]]; then
+    cmd="$(mutate_sorted_events "$cmd")"
+  fi
+  
+  echo "$cmd"
+}
 
-  # Example hook for sorted events:
-  if [[ "${args[0]}" == "g" && "${args[1]}" == "ev" ]] && [[ "$cmd" != *"--sort-by='.lastTimestamp'"* ]]; then
+mutate_sorted_events() {
+  local cmd="$1"
+  
+  if [[ "$cmd" != *"--sort-by"* ]]; then
     cmd+=" --sort-by='.lastTimestamp'"
   fi
-
+  
   echo "$cmd"
 }
 
@@ -293,7 +301,7 @@ main() {
   local cmd
 
   cmd="$(build_command "$@")"
-  cmd="$(mutate_command "$cmd" "$@")"
+  cmd="$(mutate_command "$cmd")"
   print_command "$cmd"
   execute_command "$cmd" "$@"
 }
