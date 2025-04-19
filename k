@@ -227,8 +227,13 @@ build_command() {
   for a in "${args[@]}"; do
     cmd+="$(expand_arg "$a") "
   done
-  # collapse spaces and prepend kubectl
-  echo "kubectl ${cmd//  / }"
+
+  # remove the trailing space
+  cmd=${cmd% }
+  # collapse any double‑spaces
+  cmd=${cmd//  / }
+  # prepend kubectl
+  echo "kubectl $cmd"
 }
 
 # Print the final command in bold to stderr
