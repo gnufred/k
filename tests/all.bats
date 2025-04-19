@@ -68,3 +68,11 @@ EOF
 
   rm "$HOME/.kmap.custom"
 }
+
+@test "automatic event sorting: current namespace" {
+  assert_expansion "g ev"      "get events --sort-by='.lastTimestamp'"
+}
+
+@test "automatic event sorting: all namespaces" {
+  assert_expansion "g ev -A"   "get events --all-namespaces --sort-by='.lastTimestamp'"
+}
