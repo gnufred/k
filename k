@@ -203,7 +203,7 @@ declare -A KMAP=(
 
 # Load user-defined aliases from external file into KMAP
 load_custom_kmap() {
-  local config_file="$HOME/.kmap.custom"
+  local config_file="${KMAP_FILE:-"$HOME/.kmap.custom"}"
   [[ -f "$config_file" ]] || return
 
   while IFS='=' read -r key val; do
