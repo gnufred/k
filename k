@@ -203,7 +203,7 @@ declare -A KMAP=(
 
 # Load user-defined aliases from external file into KMAP
 load_custom_kmap() {
-  local config_file="$HOME/.kmap.custom"
+  local config_file="${KMAP_FILE:-"$HOME/.kmap.custom"}"
   [[ -f "$config_file" ]] || return
 
   while IFS='=' read -r key val; do
@@ -242,7 +242,7 @@ build_command() {
 # Print the final command in bold to stderr
 print_command() {
   local cmd="$1"
-  if [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]]; then
+  if [[ -n "${DR:-}" && "${DR}" != "0" ]]; then
     echo "$cmd"
   else
     >&2 echo -e "\033[1m${cmd}\033[0m"
@@ -269,7 +269,7 @@ execute_command() {
   local args=( "$@" )
 
   # short‑circuit dry‑run
-  [[ -n "${K_DRYRUN:-}" && "${K_DRYRUN}" != "0" ]] && return
+  [[ -n "${DR:-}" && "${DR}" != "0" ]] && return
 
   if [[ "${args[0]}" == "w" ]]; then
     watch -n1 "$cmd"
