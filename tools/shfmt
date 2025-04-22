@@ -6,5 +6,4 @@ REPO="$(git rev-parse --show-toplevel 2>/dev/null)" \
   || { echo "Error: outside of Git repository root." >&2; exit 1; }
 cd "$REPO"
 
-shellcheck k
 shfmt -d -i 2 -ci k
