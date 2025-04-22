@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+REPO="$(git rev-parse --show-toplevel 2>/dev/null)" \
+  || { echo "Error: outside of Git repository root." >&2; exit 1; }
+cd "$REPO"
+
+shellcheck k
