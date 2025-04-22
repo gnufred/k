@@ -1,0 +1,8 @@
+# .shellcheckrc
+
+# Disable rules we don’t care about
+disable=SC1090,SC1091
+
+# Enable (treat as errors) the Google‑style safety checks
+enable=SC2006,SC2046,SC2059,SC2086,SC2154,SC2155
+
