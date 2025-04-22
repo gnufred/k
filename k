@@ -8,7 +8,7 @@
 # Requirements #
 ################
 require_bash() {
-  if (( BASH_VERSINFO[0] < 4 )); then
+  if ((BASH_VERSINFO[0] < 4)); then
     echo "This script requires Bash 4 or higher." >&2
     exit 1
   fi
@@ -209,7 +209,7 @@ load_custom_kmap() {
   while IFS='=' read -r key val; do
     [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
     KMAP["$key"]="$val"
-  done < "$config_file"
+  done <"$config_file"
 }
 load_custom_kmap
 
@@ -226,7 +226,7 @@ expand_arg() {
 
 # Build the kubectl command string from all arguments
 build_command() {
-  local args=( "$@" ) cmd=""
+  local args=("$@") cmd=""
   for a in "${args[@]}"; do
     cmd+="$(expand_arg "$a") "
   done
@@ -260,13 +260,14 @@ execute_watch() {
 
 # Default execution of the command
 execute_default() {
-  eval "${cmd}" 
+  eval "${cmd}"
 }
 
 # Dispatch execution based on flags
 execute_command() {
-  local cmd="$1"; shift
-  local args=( "$@" )
+  local cmd="$1"
+  shift
+  local args=("$@")
 
   # short‑circuit dry‑run
   [[ -n "${DR:-}" && "${DR}" != "0" ]] && return
@@ -283,21 +284,21 @@ execute_command() {
 ##########
 mutate_command() {
   local cmd="$1"
-  
+
   if [[ "$cmd" == kubectl\ get\ events* ]]; then
     cmd="$(mutate_sorted_events "$cmd")"
   fi
-  
+
   echo "$cmd"
 }
 
 mutate_sorted_events() {
   local cmd="$1"
-  
+
   if [[ "$cmd" != *"--sort-by"* ]]; then
     cmd+=" --sort-by='.lastTimestamp'"
   fi
-  
+
   echo "$cmd"
 }
 
@@ -314,6 +315,4 @@ main() {
   execute_command "$cmd" "$@"
 }
 
-
 main "$@"
-
