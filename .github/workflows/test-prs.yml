@@ -15,7 +15,7 @@ jobs:
         uses: mfinelli/setup-shfmt@v3
 
       - name: "Check: shfmt"
-        run: shfmt -d -i 2 -ci k
+        run: shfmt -d -i 2 -ci "k"
 
       - name: "Check: shellcheck"
         uses: sudo-bot/action-shellcheck@latest
