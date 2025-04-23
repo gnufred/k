@@ -1,6 +1,8 @@
 # `k`
 
-A lightweight Bash script that provides shorthand aliases for `kubectl` commands, resources, and options.
+A `kubectl` wrapper for [Infinite Monkeys](https://en.wikipedia.org/wiki/Infinite_monkey_theorem) randomly rewriting the Internet.
+
+Actually, a lightweight Bash script that provides shorthand aliases for `kubectl` commands, resources, and options.
 
 It saves you **a ton of typing** — and maybe even a few keystroke-induced rage quits.
 
