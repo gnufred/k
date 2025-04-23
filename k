@@ -11,7 +11,7 @@
 ALL="ingressclass,ing,all,sc,pv,pvc,cm,secret"
 declare -A KMAP=(
   # special
-  ["w"]=""
+  ["w"]=" "
 
   # custom shortcuts
   ["#all"]="get node,ns,${ALL} -o wide --all-namespaces"
@@ -225,7 +225,7 @@ load_custom_kmap
 ###############
 # Unalias a `k` alias to its `kubectl` equivalent.
 # Globals:
-#   None
+#   KMAP
 # Arguments:
 #   Alias
 # Outputs:
@@ -248,16 +248,34 @@ unalias_arg() {
 ###############
 build_command() {
   local args=("$@") cmd=""
+
   for a in "${args[@]}"; do
     cmd+="$(unalias_arg "${a}") "
   done
 
+  echo "kubectl ${cmd}"
+}
+
+###############
+# "Clean" a `kubectl` command.
+# Globals:
+#   None
+# Arguments:
+#   Build command
+# Outputs:
+#   "Cleaned" `kubectl` command
+###############
+clean_command() {
+  shopt -s extglob
+
+  # collapse any double‑spaces
+  cmd="${cmd//+([ ])/ }"
+  # remove all leading spaces
+  cmd="${cmd#"${cmd%%[! ]*}"}"
   # remove the trailing space
   cmd="${cmd% }"
-  # collapse any double‑spaces
-  cmd="${cmd//  / }"
-  # prepend kubectl
-  echo "kubectl ${cmd}"
+
+  echo "${cmd}"
 }
 
 ###############
@@ -320,14 +338,20 @@ execute_command() {
   shift
   local args=("$@")
 
-  # short‑circuit dry‑run
-  [[ -n "${DR:-}" && "${DR}" != "0" ]] && return
+  # Dry-run
+  if [[ -n "${DR:-}" && "${DR}" != "0" ]]; then
+    print_command "${cmd}"
+    return
+  fi
 
+  # Alternative watch
   if [[ "${args[0]}" == "w" ]]; then
     execute_watch "$cmd"
-  else
-    execute_default "$cmd"
+    return
   fi
+
+  print_command "${cmd}"
+  execute_default "$cmd"
 }
 
 ###############
@@ -383,8 +407,8 @@ main() {
 
   require_bash
   cmd="$(build_command "$@")"
+  cmd="$(clean_command "${cmd}")"
   cmd="$(mutate_command "${cmd}")"
-  print_command "${cmd}"
   execute_command "${cmd}" "$@"
 }
 
