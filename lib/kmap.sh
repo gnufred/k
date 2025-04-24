@@ -1,3 +1,8 @@
+###############
+# Lib: KMAP
+# Load aliases.
+###############
+
 [[ -n "${_KMAP_INCLUDED:-}" ]] && return
 readonly _KMAP_INCLUDED=1
 

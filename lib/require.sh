@@ -1,5 +1,10 @@
+###############
+# Lib: Require
+# Pre-flight checks.
+###############
+
 [[ -n "${_REQUIRE_INCLUDED:-}" ]] && return
-readonly _REQUIRE_INCLUDED=1
+readonly _REQUIRE_SH_INCLUDED=1
 
 ################
 # Error and exit if script runs with Bash 3 or lower.

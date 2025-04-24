@@ -1,3 +1,9 @@
+###############
+# Lib: Command
+# Transform an aliased `k` command into it's
+# full `kubectl` form.
+###############
+ 
 [[ -n "${_COMMAND_INCLUDED:-}" ]] && return
 readonly _COMMAND_INCLUDED=1
 

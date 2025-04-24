@@ -1,3 +1,8 @@
+###############
+# Lib: Execute
+# Execute the final `kubectl` command.
+###############
+
 [[ -n "${_EXECUTE_INCLUDED:-}" ]] && return
 readonly _EXECUTE_INCLUDED=1
 

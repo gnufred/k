@@ -1,3 +1,9 @@
+###############
+# Lib: Mutate
+# Mutate unaliased `kubectl` command to "add"
+# functionality on the flye.
+###############
+
 [[ -n "${_MUTATE_INCLUDED:-}" ]] && return
 readonly _MUTATE_INCLUDED=1
 
