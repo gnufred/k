@@ -30,27 +30,41 @@ kmap::load::custom() {
 ################
 ALL="ingressclass,ing,all,sc,pv,pvc,cm,secret"
 declare -A KMAP=(
-  # special
+  ################
+  # Special triggers
+  ################
   ["w"]=" "
 
-  # custom shortcuts
+  ################
+  # Custom
+  # Hash symbol, and one to tree lower case letters. 
+  ################
   ["#all"]="get node,ns,${ALL} -o wide --all-namespaces"
   ["#def"]="get ${ALL} -o wide --namespace default"
   ["#ks"]="get ${ALL} -o wide --namespace kube-system"
   ["#n"]="get ${ALL} -o wide --namespace"
 
-  # troubleshooting containers
+  ################
+  # Disposable troubleshooting containers
+  # At symbol followed by the container name.
+  ################
   ["@alpine"]="run -it --rm alpine --image=alpine --restart=Never -- /bin/sh"
   ["@busybox"]="run -it --rm busybox --image=busybox --restart=Never -- /bin/sh"
   ["@netshoot"]="run -it --rm netshoot --image=nicolaka/netshoot --restart=Never -- /bin/bash"
   ["@ubuntu"]="run -it --rm ubuntu --image=ubuntu --restart=Never -- /bin/bash"
 
-  # short options
+  ################
+  # Short options
+  # One dash, and one lower case letter.
+  ################
   ["-n"]="--namespace"
   ["-s"]="--server"
   ["-v"]="--v"
 
-  # kubectl options
+  ################
+  # Kubectl options
+  # One or two dashes, and one to tree lower case letters.
+  ################
   ["-c"]="--cluster"
   ["-p"]="--profile"
   ["-x"]="--context"
@@ -81,22 +95,34 @@ declare -A KMAP=(
   ["--vm"]="--vmodule"
   ["--wae"]="--warnings-as-errors"
 
-  # subcommand options
+  ################
+  # Subcommand options
+  # Two dashes, and two lowercase letters.
+  ################
   ["--ei"]="--external-ip"
   ["--sl"]="--show-labels"
 
-  # output formats
+  ################
+  # Output formats
+  # One dash, and a single capital letter.
+  ################
   ["-J"]="-o json"
   ["-N"]="-o name"
   ["-S"]="--selector"
   ["-W"]="-o wide"
   ["-Y"]="-o yaml"
 
-  # namespaces
+  ################
+  # Namespaces
+  # Optional dash, one to tree letters.
+  ################
   ["-A"]="--all-namespaces"
   ["ks"]="kube-system"
 
-  # commands
+  ################
+  # Commands
+  # One to three lower case letters. May contain a dash.
+  ################
   ["a"]="apply"
   ["a-r"]="api-resources"
   ["a-v"]="api-versions"
@@ -152,7 +178,10 @@ declare -A KMAP=(
   ["xpl"]="explain"
   ["xpo"]="expose"
 
-  # resources
+  ################
+  # Resources
+  # Two to three lower case letters.
+  ################
   ["ap"]="apiservices.apiregistration.k8s.io"
   ["cc"]="csistoragecapacities.storage.k8s.io"
   ["cd"]="csidrivers.storage.k8s.io"
@@ -201,7 +230,10 @@ declare -A KMAP=(
   ["va"]="volumeattachments.storage.k8s.io"
   ["vh"]="validatingwebhookconfigurations.admissionregistration.k8s.io"
 
-  # container shell helpers
+  ################
+  # Container shell helpers
+  # The shell name.
+  ################
   ["bash"]="-it -- /bin/bash"
   ["shell"]="-it -- /bin/sh"
 )
