@@ -19,7 +19,7 @@ readonly _MUTATE_INCLUDED=1
 mutate::command() {
   local cmd="$1"
 
-  if [[ "${cmd}" == kubectl\ get\ events* ]]; then
+  if [[ "${cmd}" == *get\ events* ]]; then
     cmd="$(mutate::events::sort "$cmd")"
   fi
 

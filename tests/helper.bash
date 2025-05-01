@@ -16,12 +16,12 @@ assert_expansion() {
   # Test shorthand
   run "$BATS_TEST_DIRNAME"/../k $shorthand
   [ "$status" -eq 0 ]
-  [[ "$output" == "kubectl $expected"* ]] || \
+  [[ "$output" == "kubectl $expected" ]] || \
     { echo "❌ shorthand '$shorthand' → expected 'kubectl $expected', got '$output'"; return 1; }
 
   # Test full command
   run "$BATS_TEST_DIRNAME"/../k $expected
   [ "$status" -eq 0 ]
-  [[ "$output" == "kubectl $expected"* ]] || \
+  [[ "$output" == "kubectl $expected" ]] || \
     { echo "❌ full  '$expected'    → expected 'kubectl $expected', got '$output'"; return 1; }
 }

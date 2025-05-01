@@ -6,18 +6,23 @@ load 'helper'
   assert_expansion "g po" "get pods"
 }
 
-@test "event sorting: no expansions" {
+@test "event sort: no expansions" {
   assert_expansion "get events" "get events --sort-by='.lastTimestamp'"
 }
 
-@test "event sorting: current namespace" {
+@test "event sort: current namespace" {
   assert_expansion "g ev" "get events --sort-by='.lastTimestamp'"
 }
 
-@test "event sorting: all namespaces" {
+@test "event sort: all namespaces" {
   assert_expansion "g ev -A" "get events --all-namespaces --sort-by='.lastTimestamp'"
 }
 
-@test "event sorting: no overrides" {
+@test "event sort: no overrides" {
   assert_expansion "g ev --sort-by='.firstTimestamp'" "get events --sort-by='.firstTimestamp'"
+}
+
+# https://github.com/gnufred/k/issues/41
+@test "event sort: with namespace" {
+  assert_expansion "-n mykube g ev" "--namespace mykube get events --sort-by='.lastTimestamp'"
 }
