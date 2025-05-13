@@ -47,7 +47,7 @@ execute::command() {
 #   The watched command
 ###############
 execute::watch() {
-  watch -n1 "${cmd}"
+  watch -n2 "${cmd}"
 }
 
 ###############
