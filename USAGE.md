@@ -18,6 +18,8 @@
 3. **Ensure dependencies are met**
    - Bash **version 4** or higher
 
+> **_NOTE:_** For MAC user with Apple Silicon, if you install Bash **version 4** with ```brew install bash```, one solution is to change the first line of main "k" file with ```#!/opt/homebrew/bin/bash```
+
 ---
 
 ## Usage
