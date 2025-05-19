@@ -65,7 +65,6 @@ declare -A KMAP=(
   # Kubectl options
   # One or two dashes, and one to tree lower case letters.
   ################
-  ["-c"]="--cluster"
   ["-p"]="--profile"
   ["-x"]="--context"
   ["--ag"]="--as-group"
